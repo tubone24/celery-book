@@ -1,0 +1,67 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./handson_fastapi:/app/handson_fastapi
+      - ./handson_celery:/app/handson_celery
+    command: uvicorn handson_fastapi.main:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      - rabbitmq
+      - redis
+    environment:
+      - CELERY_BROKER_URL=pyamqp://guest:guest@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+  worker:
+    build: .
+    command: celery -A handson_celery.worker worker --loglevel=info
+    volumes:
+      - ./handson_fastapi:/app/handson_fastapi
+      - ./handson_celery:/app/handson_celery
+    depends_on:
+      - rabbitmq
+      - redis
+    environment:
+      - CELERY_BROKER_URL=pyamqp://guest:guest@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+  flower:
+    build: .
+    command: celery -A handson_celery.worker flower --port=5555
+    ports:
+      - "5555:5555"
+    volumes:
+      - ./handson_fastapi:/app/handson_fastapi
+      - ./handson_celery:/app/handson_celery
+    depends_on:
+      - rabbitmq
+      - redis
+      - worker
+    environment:
+      - CELERY_BROKER_URL=pyamqp://guest:guest@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
