@@ -10,7 +10,7 @@ celery_app = Celery(
 # タスク設定
 celery_app.conf.update(
     task_serializer="json",
-    accept_content=["json"],˚
+    accept_content=["json"],
     result_serializer="json",
     timezone="Asia/Tokyo",
     enable_utc=True,
