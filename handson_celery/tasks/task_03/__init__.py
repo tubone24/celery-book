@@ -1,1 +1,1 @@
-from handson_celery.tasks.task_03 import flower_long_task
+from handson_celery.tasks.task_03.flower_long_task import longlong_task

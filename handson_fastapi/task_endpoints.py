@@ -4,7 +4,7 @@ from typing import Dict, Any, List, Optional
 from celery.result import AsyncResult
 
 from handson_celery.config import celery_app
-from handson_celery.tasks.task_02.task_definitions import multiply, divide, rate_limited_task, fetch_url, power
+from handson_celery.tasks.task_02.task_definitions import multiply, rate_limited_task, fetch_url, power
 from handson_celery.tasks.task_02.error_handling import unreliable_task, auto_retry_task, task_with_expected_errors
 from handson_celery.tasks.task_04.task_control import scheduled_task, priority_task, time_limited_task
 from handson_celery.tasks.task_05.progress_tracking import progress_task, simulation_task
@@ -34,12 +34,6 @@ class ProgressRequest(BaseModel):
 async def multiply_numbers(request: MathRequest):
     """乗算タスクを実行するエンドポイント"""
     task = multiply.delay(request.x, request.y)
-    return {"task_id": task.id}
-
-@router.post("/divide")
-async def divide_numbers(request: MathRequest):
-    """除算タスクを実行するエンドポイント"""
-    task = divide.delay(request.x, request.y)
     return {"task_id": task.id}
 
 @router.post("/power")

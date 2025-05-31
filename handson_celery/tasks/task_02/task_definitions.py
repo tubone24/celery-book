@@ -8,14 +8,6 @@ def multiply(x, y):
     """二つの数値を乗算するタスク"""
     return x * y
 
-# 名前を明示的に指定したタスク
-@celery_app.task(name='handson_celery.divide')
-def divide(x, y):
-    """二つの数値を除算するタスク"""
-    if y == 0:
-        raise ZeroDivisionError("ゼロで割ることはできません")
-    return x / y
-
 # レート制限を持つタスク
 @celery_app.task(rate_limit='5/m')
 def rate_limited_task(value):
